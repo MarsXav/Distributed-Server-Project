@@ -20,26 +20,25 @@
 
 ## Nginx configuration file
 * Structure
-'''nginx
+```nginx
 user nobody # worker process belongs to nobody, permission will be denied
 worker_processes # amount of worker processes, = number of cpu cores
 events{
 	use epoll;
 	worker_connections 1024;
 }
-
-'''
+```
 	* HTTP module
 		* Server module: every server corresponds to a web server
-'''nginx
+```nginx
 listen 80; # listen port of web server
 server_name localhost; #corresponds to a domain
 charset utf8;
 location  # process client's requests
 
-'''
+```
 			* Location module: process client's requests
-'''nginx
+```nginx
 location #commands(/)
 {
 	# locate a static webpage based on a relative directory
@@ -47,7 +46,7 @@ location #commands(/)
 	# clients requests a directory, nginx needs to locate a default web page
 	index [default web page]
 }
-'''
+```
 
 
 ## Nginx usage
@@ -58,7 +57,7 @@ location #commands(/)
 	* Load balancing
 	The example can be review on Windows: nginx.conf
 
-'''conf
+```conf
 server{
 	listen 80;
 	server_name [domain to visit]
@@ -69,4 +68,4 @@ server{
 upstream xxx.com {
 	server [webserver] [weight];
 }
-'''
+```

@@ -13,13 +13,13 @@
 > response data: data server sends to client
 
 * Dynamic requests
-'''http
+```http
 - http:// protocal
 - /domain
 - /[commands the web server needs to process]
 - ? : connector
 - & : separator
-'''
+```
 
 How does server process a dynamic request?
 - remove protocal
