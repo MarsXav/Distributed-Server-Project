@@ -28,16 +28,15 @@ events{
 	worker_connections 1024;
 }
 ```
-	* HTTP module
-		* Server module: every server corresponds to a web server
+* HTTP module
+	* Server module: every server corresponds to a web server
 ```nginx
 listen 80; # listen port of web server
 server_name localhost; #corresponds to a domain
 charset utf8;
 location  # process client's requests
-
 ```
-			* Location module: process client's requests
+* Location module: process client's requests
 ```nginx
 location #commands(/)
 {
