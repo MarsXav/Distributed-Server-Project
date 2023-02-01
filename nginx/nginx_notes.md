@@ -68,3 +68,19 @@ upstream xxx.com {
 	server [webserver] [weight];
 }
 ```
+
+## Nginx data forward to fastCGI - modify nginx.conf
+```conf
+# converts request url to a command, http://localhost/login?user=Mars&passwd=123 for example
+	- remove protocal
+	- remove domain/IP and port
+	- remove file name (if any)
+	- remove ?....
+location /login {
+	# forward data to a fastCGI process
+	fastcgi_pass [address] : [port]; # address: usually localhost; port: assign freely
+	#the file includes environmental variables needs for http 
+	include fastcgi.conf;
+}
+```
+
