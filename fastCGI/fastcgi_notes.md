@@ -14,17 +14,21 @@
 > response data: data server sends to client
 
 * Dynamic requests
-- http:// protocal
-- /domain
-- /[commands the web server needs to process]
-- ? : connector
-- & : separator
+> http:// protocal
+> /domain
+> /[commands the web server needs to process]
+> ? : connector
+> & : separator
 
 ### How does server process a dynamic request?
 - remove protocal
 - remove domain/IP
 - remove port
 - remove ? and following
+> * If a request line is obtained, how to find the process command?
+> 1. Look into the second part of the request line
+> 	- POST: the command is the second part of the request line
+> 	- GET: the command is the part before '?'
 
 ## CGI
 > 1. Client visits server through browser, sends a request
@@ -92,8 +96,4 @@ int main(){
 		printf("<html> [results] </html>");
 	}
 }
-
-
-
-
 
