@@ -20,6 +20,12 @@
 > ? : connector
 > & : separator
 
+* Commonl used four types of data submitted by POST
+	* application/x-www-form-urlencoded
+	* application/json
+	* text/xml
+	* multipart/form-data
+
 ### How does server process a dynamic request?
 - remove protocal
 - remove domain/IP
@@ -83,10 +89,10 @@ spawn-fcgi -a $IP -p $port -f $executable_program
 int main(){
 	// block function, when nginx sends data to fastCGI, unblock.
 	while(FCGI_Accept() >= 0){
-		//1. receive data
-		// 1.1 GET - data is at the second part of request line
-		char* text = getenv("QUERY_STRING");
-		// 1.2 POST
+		//1. receive data from environment
+		// 1.1 GET -> data is at the second part of request line
+		char* text = getenv("QUERY_STRING"); // obtain the data client submit
+		// 1.2 POST -> get content length()
 		char* contentLength  = getenv("CONTENT_LENGTH"); // identify if read in turns
 
 		//2. process based on logic
