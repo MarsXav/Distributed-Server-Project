@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>rsc/icons8-apple-logo-16.png</file>
+        <file>rsc/icons8-apple-pay-16.png</file>
+        <file>rsc/icons8-apple-tv-16.png</file>
+        <file>rsc/icons8-itunes-store-16.png</file>
+        <file>rsc/simple-bright-sky-diver-4dk2h4vfpwcjtifj.jpg</file>
+    </qresource>
+</RCC>
