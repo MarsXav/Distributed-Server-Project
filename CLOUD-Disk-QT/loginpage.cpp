@@ -4,9 +4,15 @@
 #include "ui_loginpage.h"
 #include <QRegularExpression>
 #include <QMessageBox>
+
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+
+#include <QJsonDocument>
+#include <QJsonObject>	// process json objectj
+#include <QJsonArray>	// process json array
+#include <QJsonValue>	// pack data
 
 LoginPage::LoginPage(QWidget *parent) :
     QDialog(parent),
@@ -115,22 +121,53 @@ void LoginPage::on_Reg_btn_clicked()
     if (!LoginPage::RegCheck()) {
         return;
     }
+    QString userName = ui->reg_userid->text();
+    QString password = ui->reg_password->text();
+    QString confirm = ui->reg_confirm->text();
+    QString phone = ui->reg_phone->text();
+    QString mail = ui->reg_email->text();
     // send data to server
    // join data to json object
     // send data thru http protocal, POST
     // format: json object
     QNetworkAccessManager* pManager = new QNetworkAccessManager(this);
-    QNetworkRequest* request;
-    request->setUrl(http://192.168.101.123/reg);
+    QNetworkRequest* request = nullptr;
+    QString url = QString("http://%1:%2/reg").arg(ui->server_ip->text()).arg(ui->server_port->text());
+    request->setUrl(url);
     request->setHeader(QNetworkRequest::ContentTypeHeader, "application/json"); //describe post data format
-    QNetworkReply* reply = pManager->post(request, data);
+    // format a json object string
+    QJsonObject obj;
+    obj.insert("userName", userName);
+    obj.insert("password", QJsonValue(password));
+    obj.insert("confirm", QJsonValue(userName));
+    obj.insert("phone", QJsonValue(userName));
+    obj.insert("email", QJsonValue(mail));
+    //obj->doc
+    QJsonDocument doc(obj);
+    //doc->array
+    QByteArray json = doc.toJson();
+
+
+    QNetworkReply* reply = pManager->post(*request, json);
     // receive response data
     connect(reply, &QNetworkReply::readyRead, this, [=]{
         // analyse server response
         // receive data
         QByteArray all = reply->readAll();
         // format of server reply -> parsing
-        // obtain
+        QJsonDocument doc = QJsonDocument::fromJson(all);
+        //doc->obj
+        QJsonObject myobj = doc.object();
+        QString status = myobj.value("code").toString();
+
+        // on success, alert client
+        if ("002" == status) {
+
+        } else if ("003" == status) {
+            QMessageBox::warning(this, "ERROR", "User already exits");
+        } else {
+            QMessageBox::warning(this, "ERROR", "Error");
+        }
     });
     // process response data
 }
