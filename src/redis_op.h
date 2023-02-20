@@ -3,12 +3,18 @@
 
 #include <hiredis/hiredis.h>
 #include <stdlib.h>
-#include <string>
+#include <cstring>
 
 #define REDIS_COMMAND_SIZE 300 
+#define FIELD_ID_SIZE 100
+#define VALUES_ID_SIZE 1024
 
 // store redis commands
 typedef char(*RCOMMANDS)[REDIS_COMMAND_SIZE];
+// store field string type
+typedef char(*RFIELDS)[FIELD_ID_SIZE];
+// store values string type
+typedef char(*RVALUES)[VALUES_ID_SIZE];
 
 // Select a redis database, return 0 on success, -1 on fail
 int rop_SelectDataBase(redisContext* conn, unsigned int db_no);
@@ -31,4 +37,15 @@ int rop_redisAppend(redisContext* conn, RCOMMANDS cmds, int cmd_num);
 // execute single redis command, return 0 on success, -1 on fail
 int rop_redisCommand(redisContext* conn, char* cmd);
 
+// connect redis database in tcp mode, return a connection on success, nullptr on fail, without pw
+redisContext* rop_connectdb_nopwd(char *ip_str, char* port_str);
+
+// connect redis database in tcp mode, return a connection on success, nullptr on fail, with pw
+redisContext* rop_connectdb(char* ip_str, char* port_str, char* pwd);
+
+// disconnect from a server
+void rop_disconnect(redisContext* conn);
+
+// hmset
+static char* make_hmset_command(char* key, uint element_num, RFIELDS fields, RVALUES values);
 #endif
