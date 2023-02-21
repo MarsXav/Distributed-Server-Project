@@ -48,4 +48,10 @@ void rop_disconnect(redisContext* conn);
 
 // hmset
 static char* make_hmset_command(char* key, uint element_num, RFIELDS fields, RVALUES values);
+
+// append a hash set, return 0 on success, -1 on fail
+int rop_hash_set_append(redisContext* conn, char* key, RFIELDS fields, RVALUES values, int val_num);
+
+// add a pair of data in hash table, return 0 on success, -1 on fail
+int rop_hash_set(redisContext* conn, char* key, char* field, char* value);
 #endif

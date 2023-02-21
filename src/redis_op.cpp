@@ -277,19 +277,49 @@ static char* make_hmset_command(char* key, uint element_num, RFIELDS fields, RVA
 	return cmd;
 }
 
+int rop_hash_set_append(redisContext* conn, char* key, RFIELDS fields, RVALUES values, int val_num)
+{
+	int ret = 0;
+	redisReply* reply = nullptr;
+	// append commands into command pipes
+	for (int i = 0; i < val_num; i++)
+	{
+		ret = redisAppendCommand(conn, "hset %s %s %s", key, fields[i], values[i]);
+		if (ret != REDIS_OK)
+		{
+		// log
+			ret = -1;
+			return ret;
+		}
+		ret = 0;
+	}
+	// submit commands
+	for (int i = 0; i < val_num; i++)
+	{
+		ret = redisGetReply(conn, (void**)&reply);
+		if (ret != REDIS_OK)
+		{
+			ret = -1;
+			//log
+			freeReplyObject(reply);
+			return ret;
+		}
+		freeReplyObject(reply);
+		ret = 0;
+	}
+	return ret;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int rop_hash_set(redisContext* conn, char* key, char* field, char* value)
+{
+	int ret = 0;
+	redisReply* reply = nullptr;
+	reply = (redisReply*)redisCommand(conn, "hset %s %s %s", key, field, value);
+	if (reply == nullptr or reply->type != REDIS_REPLY_INTEGER)
+	{
+		ret = -1;
+		freeReplyObject(reply);
+		return ret;
+	}
+	return ret;
+}
