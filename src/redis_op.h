@@ -54,4 +54,23 @@ int rop_hash_set_append(redisContext* conn, char* key, RFIELDS fields, RVALUES v
 
 // add a pair of data in hash table, return 0 on success, -1 on fail
 int rop_hash_set(redisContext* conn, char* key, char* field, char* value);
+
+// get a key-value pair from hash, return 0 on success, -1 on fail
+int rop_hash_get(redisContext* conn, char* key, char* field, char* value);
+
+// remove a field from a hash, return 0 on success, -1 on fail
+int rop_hash_del(redisContext* conn, char* key, char* field);
+
+// create or override a hash table
+int rop_create_or_replace_hash_table(redisContext* conn, char* key, uint element_num, RFIELDS fields, RVALUES values);
+
+// append by batch to the list's head, return 0 on success, -1 on fail
+int rop_list_push_append(redisContext* conn, char* key, RVALUES values, int val_num);
+
+// append a single data to the list
+int rop_list_push(redisContext* conn, char* key, char* value);
+
+// 
+int rop_setex_string(redisContext* conn, char* user, uint seconds, char* value);
+ 
 #endif

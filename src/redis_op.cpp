@@ -323,3 +323,113 @@ int rop_hash_set(redisContext* conn, char* key, char* field, char* value)
 	}
 	return ret;
 }
+
+int rop_hash_get(redisContext* conn, char* key, char* field, char* value)
+{
+	int ret = 0;
+	size_t len = 0;
+	redisReply* reply = nullptr;
+	reply = (redisReply*)redisCommand(conn, "hget %s %s", key, field);
+	if (reply == nullptr or reply->type != REDIS_REPLY_STRING)
+	{
+		//log
+		ret = -1;
+		freeReplyObject(reply);
+		return ret;
+	}
+	len = reply->len > VALUES_ID_SIZE ? VALUES_ID_SIZE : reply->len;
+	strncpy(value, reply->str,len);
+	value[len] = '\0';
+	freeReplyObject(reply);
+	return ret;
+}
+
+int rop_hash_del(redisContext* conn, char* key, char* field)
+{
+	int ret = 0;
+	redisReply* reply = nullptr;
+	reply = (redisReply*)redisCommand(conn, "hdel %s %s", key, field);
+	if (reply->integer != 1)
+	{
+		ret = -1;
+		freeReplyObject(reply);
+		return ret;
+	}
+	freeReplyObject(reply);
+	return ret;
+
+}
+
+int rop_create_or_replace_hash_table(redisContext* conn, char* key, uint element_num, RFIELDS fields, RVALUES values)
+{
+	int ret = 0;
+	redisReply* reply = nullptr;
+	char* cmd = make_hmset_command(key, element_num, fields, values);
+	if (cmd == nullptr) 
+	{
+		ret = -1;
+		free(cmd);
+	}
+	reply = (redisReply*)redisCommand(conn, cmd);
+	if (strcmp(reply->str, "OK") != 0)
+	{
+		ret = -1;
+		free(cmd);
+		freeReplyObject(reply);
+	}
+	return ret;
+}
+
+int rop_list_push_append(redisContext* conn, char* key, RVALUES values, int val_num)
+{
+	int ret = 0;
+	redisReply* reply = nullptr;
+	for (int i = 0; i < val_num; i++)
+	{
+		ret = redisAppendCommand(conn, "lpush %s %s", key, values[i]);
+		if (ret != REDIS_OK)
+		{
+			ret = -1;
+			return ret;
+		}
+		ret = 0;
+	}
+	for (int i = 0; i < val_num; i++)
+	{
+		ret = redisGetReply(conn, (void**)&reply);
+		if (ret != REDIS_OK)
+		{
+			ret = -1;
+			freeReplyObject(reply);
+		}
+		ret = 0;
+	}
+	return ret;
+}
+
+int rop_list_push(redisContext* conn, char* key, char* value)
+{
+	int ret = 0;
+	redisReply* reply = nullptr;
+	reply = (redisReply*)redisCommand(conn, "LPUSH %s %s", key, value);
+	if (reply->type != REDIS_REPLY_INTEGER)
+	{
+		ret = -1;
+	}
+	freeReplyObject(reply);
+	return ret;
+}
+
+int rop_setex_string(redisContext* conn, const char* key, uint seconds, const char* value)
+{
+	int ret = 0;
+	redisReply* reply = nullptr;
+	reply = (redisReply*)redisCommand(conn, "setex %s %u %s", key, seconds, value);
+	if (strcmp(reply->str, "OK") != 0){
+		ret = -1;
+		freeReplyObject(reply);
+		return ret;
+	}
+	freeReplyObject(reply);
+	return ret;
+}

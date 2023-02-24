@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <cstring>
 
+#define SQL_MAX_LEN 512
+
 // print error messages of sql operations
 void print_error(MYSQL* conn, const char* title);
 
