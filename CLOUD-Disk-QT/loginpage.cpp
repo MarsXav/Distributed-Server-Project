@@ -29,23 +29,15 @@ LoginPage::LoginPage(QWidget *parent) :
     // process title widget signal
     connect(ui->Title, &Titlewg::closeWindow, this, [=](){
         // identify current stacked Widget page
-        if (ui->stackedWidget->currentWidget() == ui->Set_pg_2)
-        {
-            // switch to login page
-            ui->stackedWidget->setCurrentWidget(ui->Login_pg);
-        }
-        else if (ui->stackedWidget->currentWidget() == ui->Reg_pg_2)
-        {
-            ui->stackedWidget->setCurrentWidget(ui->Login_pg);
-        }
-        else
-        {
             this->close();
-        }
     });
 
     connect(ui->Title, &Titlewg::showSetWindow, this, [=](){
-        ui->stackedWidget->setCurrentWidget(ui->Set_pg_2);
+        if (ui->stackedWidget->currentWidget() == ui->Set_pg_2){
+            ui->stackedWidget->setCurrentWidget(ui->Login_pg);
+        } else {
+            ui->stackedWidget->setCurrentWidget(ui->Set_pg_2);
+        }
     });
 
     // process Register page
@@ -54,6 +46,10 @@ LoginPage::LoginPage(QWidget *parent) :
     });
 
     connect (ui->back_btn, &QPushButton::clicked, this, [=](){
+        ui->stackedWidget->setCurrentWidget(ui->Login_pg);
+    });
+
+    connect (ui->setting_go_back, &QPushButton::clicked, this,[=](){
         ui->stackedWidget->setCurrentWidget(ui->Login_pg);
     });
 }
@@ -147,7 +143,6 @@ void LoginPage::on_Reg_btn_clicked()
     //doc->array
     QByteArray json = doc.toJson();
 
-
     QNetworkReply* reply = pManager->post(*request, json);
     // receive response data
     connect(reply, &QNetworkReply::readyRead, this, [=]{
@@ -163,12 +158,57 @@ void LoginPage::on_Reg_btn_clicked()
         // on success, alert client
         if ("002" == status) {
 
-        } else if ("003" == status) {
+        }
+        // on fail
+        else if ("003" == status) {
             QMessageBox::warning(this, "ERROR", "User already exits");
         } else {
             QMessageBox::warning(this, "ERROR", "Error");
         }
     });
     // process response data
+}
+
+void LoginPage::on_sign_in_btn_clicked()
+{
+    QString id = ui->login_id->text();
+    QString pw = ui->login_password->text();
+    QNetworkAccessManager* pManager = new QNetworkAccessManager(this);
+    QNetworkRequest* request = nullptr;
+    QString url = QString("http://%1:%2/login").arg(ui->server_ip->text()).arg(ui->server_port->text());
+    request->setUrl(url);
+    request->setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject obj;
+    obj.insert("userID", id);
+    obj.insert("password", pw);
+    //obj->doc
+    QJsonDocument doc(obj);
+    //doc->array
+    QByteArray json = doc.toJson();
+
+    QNetworkReply* reply = pManager->post(*request, json);
+    // receive response data
+    connect(reply, &QNetworkReply::readyRead, this, [=]{
+        // analyse server response
+        // receive data
+        QByteArray all = reply->readAll();
+        // format of server reply -> parsing
+        QJsonDocument doc = QJsonDocument::fromJson(all);
+        //doc->obj
+        QJsonObject myobj = doc.object();
+        QString status = myobj.value("code").toString();
+
+        // on success, alert client
+        if ("000" == status) {
+
+        }
+        // on fail
+        else if ("001" == status) {
+            QMessageBox::warning(this, "ERROR", "Wrong password or user ID");
+        } else {
+            QMessageBox::warning(this, "ERROR", "Error");
+        }
+    });
+
 }
 
