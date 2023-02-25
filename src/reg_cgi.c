@@ -135,7 +135,65 @@ int user_register(char* reg_buf)
 	}
 }
 
+char* return_status(char* status_num)
+{
+	char* out = NULL;
+	cJSON* root = cJSON_CreateObject(); // create json object
+	cJSON_AddStringToObject(root, "code", status_num); // {"code": "000"}
+	out = cJSON_Print(root);
+	cJSON_Delete(root);
+	return out;
+}
+
 int main()
 {
-	
+	while(FCGI_Accept() >= 0)	
+	{
+		int len = 0;
+		char* contentLength = getenv("CONTENT_LENGTH");
+		printf("Content-type: text/html\r\n\r\n");
+		if (contentLength == NULL)
+		{
+			len = 0;	
+		}
+		else 
+		{
+			len = atoi(contentLength);
+		}
+		if (len <= 0)
+		{
+			printf("No data from stdin");
+		}
+		else 
+		{
+			char buf[4*1024] = {0};
+			int ret = 0;
+			char* out = NULL;
+			ret = fread(buf, 1, len, stdin); // read from web server
+			if (ret == 0)
+			{
+				continue;
+			}
+			ret = user_register(buf);
+			if (ret == 0)
+			{
+				out = return_status("002");
+			}
+			else if (ret == -1)
+			{
+				out = return_status("004");
+			}
+			else if (ret == -2)
+			{
+				out = return_status("003");
+			}
+
+			if (out != NULL)
+			{
+				printf(out);
+				free(out);		
+			}
+		}
+	}
+	return 0;
 }
