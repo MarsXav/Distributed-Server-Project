@@ -2,6 +2,7 @@
 #define LOGINPAGE_H
 
 #include <QDialog>
+#include "common.h"
 
 namespace Ui {
 class LoginPage;
@@ -24,8 +25,11 @@ private slots:
 
     void on_sign_in_btn_clicked();
 
+    void on_setting_confirm_btn_clicked();
+
 private:
     Ui::LoginPage *ui;
+    common m_cm;
 };
 
 #endif // LOGINPAGE_H

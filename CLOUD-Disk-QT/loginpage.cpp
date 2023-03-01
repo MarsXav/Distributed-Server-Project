@@ -1,9 +1,11 @@
 #include "loginpage.h"
-#include <QPainter>
-#include "qpushbutton.h"
 #include "ui_loginpage.h"
+
+#include <QPainter>
+#include <qpushbutton.h>
 #include <QRegularExpression>
 #include <QMessageBox>
+#include <QDir>
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -122,15 +124,23 @@ void LoginPage::on_Reg_btn_clicked()
     QString confirm = ui->reg_confirm->text();
     QString phone = ui->reg_phone->text();
     QString mail = ui->reg_email->text();
+
+    if (confirm != password)
+    {
+       QMessageBox::warning(this, "Warning", "Two passwords are not identical");
+       return;
+    }
     // send data to server
    // join data to json object
-    // send data thru http protocal, POST
+    QStringList keys = QStringList() << "userName" << "password" << "confirm" << "phone" << "mail";
+    QStringList values = QStringList() << userName << password << confirm << phone << mail;    // send data thru http protocal, POST
     // format: json object
     QNetworkAccessManager* pManager = new QNetworkAccessManager(this);
     QNetworkRequest* request = nullptr;
     QString url = QString("http://%1:%2/reg").arg(ui->server_ip->text()).arg(ui->server_port->text());
     request->setUrl(url);
     request->setHeader(QNetworkRequest::ContentTypeHeader, "application/json"); //describe post data format
+
     // format a json object string
     QJsonObject obj;
     obj.insert("userName", userName);
@@ -138,12 +148,17 @@ void LoginPage::on_Reg_btn_clicked()
     obj.insert("confirm", QJsonValue(userName));
     obj.insert("phone", QJsonValue(userName));
     obj.insert("email", QJsonValue(mail));
+
     //obj->doc
     QJsonDocument doc(obj);
+
     //doc->array
     QByteArray json = doc.toJson();
-
+    qDebug() << "register json data" << json;
+    request->setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
+    request->setHeader(QNetworkRequest::ContentLengthHeader, QVariant(json.size()));
     QNetworkReply* reply = pManager->post(*request, json);
+
     // receive response data
     connect(reply, &QNetworkReply::readyRead, this, [=]{
         // analyse server response
@@ -157,7 +172,21 @@ void LoginPage::on_Reg_btn_clicked()
 
         // on success, alert client
         if ("002" == status) {
+            QMessageBox::information(this, "Successful registration", "Succesful registration, proceed to login");
 
+            // clear line edit
+            ui->reg_userid->clear();
+            ui->reg_password->clear();
+            ui->reg_confirm->clear();
+            ui->reg_email->clear();
+            ui->reg_phone->clear();
+
+            //set login page info
+            ui->login_id->setText(userName);
+            ui->login_password->setText(password);
+
+            //switch to login page
+            ui->stackedWidget->setCurrentWidget(ui->Login_pg);
         }
         // on fail
         else if ("003" == status) {
@@ -210,5 +239,12 @@ void LoginPage::on_sign_in_btn_clicked()
         }
     });
 
+}
+
+void LoginPage::on_setting_confirm_btn_clicked()
+{
+    QString ip = ui->server_ip->text();
+    QString port = ui->server_port->text();
+    m_cm.writeWebInfo(ip, port);
 }
 
