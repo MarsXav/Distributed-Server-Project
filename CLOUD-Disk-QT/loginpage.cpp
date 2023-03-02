@@ -1,5 +1,6 @@
 #include "loginpage.h"
 #include "ui_loginpage.h"
+#include "logininfoinstance.h"
 
 #include <QPainter>
 #include <qpushbutton.h>
@@ -110,8 +111,6 @@ bool LoginPage::RegCheck()
     return true;
 }
 
-
-
 void LoginPage::on_Reg_btn_clicked()
 {
     // process
@@ -201,6 +200,8 @@ void LoginPage::on_Reg_btn_clicked()
 void LoginPage::on_sign_in_btn_clicked()
 {
     QString id = ui->login_id->text();
+    QString ip = ui->server_ip->text();
+    QString port = ui->server_port->text();
     QString pw = ui->login_password->text();
     QNetworkAccessManager* pManager = new QNetworkAccessManager(this);
     QNetworkRequest* request = nullptr;
@@ -228,17 +229,27 @@ void LoginPage::on_sign_in_btn_clicked()
         QString status = myobj.value("code").toString();
 
         // on success, alert client
-        if ("000" == status) {
+        if ("000" == status)
+        {
+            cout << "Successfully login";
+            // setup login info
+            LoginInfoInstance *p = LoginInfoInstance::getInstance();
+            p->setLoginInfo(id, ip, port, obj.value("token").toString());
+
+            // hide current window
+            this->hide();
+            // switch to main window
 
         }
         // on fail
-        else if ("001" == status) {
+        else if ("001" == status)
+        {
             QMessageBox::warning(this, "ERROR", "Wrong password or user ID");
-        } else {
+        } else
+        {
             QMessageBox::warning(this, "ERROR", "Error");
         }
     });
-
 }
 
 void LoginPage::on_setting_confirm_btn_clicked()

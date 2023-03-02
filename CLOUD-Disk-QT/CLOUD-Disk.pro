@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     common.cpp \
+    logininfoinstance.cpp \
     loginpage.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -17,6 +18,7 @@ SOURCES += \
 
 HEADERS += \
     common.h \
+    logininfoinstance.h \
     loginpage.h \
     mainwindow.h \
     titlewg.h
